@@ -1,6 +1,10 @@
 import {useState,useRef} from "react";
 import {validateData} from "../utils/validate";
-import Header from "./Header"
+import Header from "./Header";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import {signInWithEmailAndPassword } from "firebase/auth";
+
+import {auth} from "../utils/firebase";
 const Login = () => {
     const[isSignin,setIssignin] = useState(true);
     const [errorMessage,setErrorMessage] = useState();
@@ -15,6 +19,41 @@ const Login = () => {
     const checkData = () => {
         const message = validateData(email.current.value,password.current.value);
         setErrorMessage(message);
+
+        if(message)
+            return;
+
+        if(!isSignin){
+            createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
+            .then((userCredential) => {
+              // Signed up 
+              const user = userCredential.user;
+              console.log(user);
+              // ...
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              setErrorMessage(errorCode + "-" + errorMessage);
+
+              // ..
+            });
+        }
+        else{
+            //SignIn Logic
+            signInWithEmailAndPassword(auth,email.current.value, password.current.value)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    console.log(user);
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode + "-" + errorMessage);
+  });
+        }
       }
   
     
